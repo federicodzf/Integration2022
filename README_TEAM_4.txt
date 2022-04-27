@@ -1,6 +1,6 @@
 ###########################################################
 
-READ ME
+README file 
 
 ENGINEERING INTEGRATION II SOURCE CODE TEAM 4
 
