@@ -1,4 +1,4 @@
-# Comment from Carter: When you run the code, make sure it says something similar to "can't initialize pigpio".
+# Note: When you run the code, make sure it says something similar to "can't initialize pigpio".
 # This tells us that the proper tools needed for pigpio - namely "sudo pigpiod" - is running. To verify that the
 # library is properly functioning, enter "pigs t" into the terminal; if a large number is returned everything SHOULD BE fine.
 
@@ -29,7 +29,6 @@ display = pygame.display.set_mode((300, 300))
 
 # import the GPIO module for the servos
 import RPi.GPIO as GPIO
-
 # import the pigpio library for the servos
 import pigpio
 from os import system # Crucial do not remove. Necessary for loading in the sudo pigpiod --- pigpio library launched as a demon, hence why we use "sudo pigpiod".
@@ -65,7 +64,6 @@ GPIO.setup(GPIO_ECHO_2, GPIO.IN)
 def distanceUS(echo, trig):
     # set Trigger to HIGH
     GPIO.output(trig, True)
- 
     # set Trigger after 0.01ms to LOW
     time.sleep(0.00001)
     GPIO.output(trig, False)
@@ -83,12 +81,12 @@ def distanceUS(echo, trig):
  
     # time difference between start and arrival
     TimeElapsed = StopTime - StartTime
-    # multiply with the sonic speed (34300 cm/s)
-    # and divide by 2, because there and back
+    # multiply with the sonic speed (34300 cm/s) and divide by 2, because there and back
     distance = (TimeElapsed * 34300) / 2
  
     return distance
 
+# Motor fucntions without PID controller
 #black cord of motor has to go on top 
 def forward():
     comms.send_pwm_goal(0,-203, -200, 0)
@@ -104,23 +102,24 @@ def goRight():
 
 def stop():
     comms.send_pwm_goal(0,0, 0, 0)
-
+  
+#Main function
 def main():
-    
     while True:
-        
         dist1 = distanceUS(GPIO_ECHO_1, GPIO_TRIGGER_1)
         print ("Measured Distance from USR = %.1f cm" % dist1)
         dist2 = distanceUS(GPIO_ECHO_2, GPIO_TRIGGER_2)
         print ("Measured Distance from USL = %.1f cm" % dist2)
         time.sleep(1)
         
-        if dist1 <= 50 or dist2 <= 50:
+        if dist1 <= 40 or dist2 <= 40:
+            back()
+            time.sleep(1)
             goRight()
             time.sleep(2.5)
             stop()
         
-        # Cycles through all the events currently occuring
+        # Pygame module to handle keyboard input
         for event in pygame.event.get():
             pressed_keys = pygame.key.get_pressed()
             # Condition becomes true when keyboard is pressed   
@@ -171,8 +170,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-                  
-                
-
-
