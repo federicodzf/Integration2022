@@ -1,4 +1,4 @@
-# Comment from Carter: When you run the code, make sure it says something similar to "can't initialize pigpio".
+# Note: When you run the code, make sure it says something similar to "can't initialize pigpio".
 # This tells us that the proper tools needed for pigpio - namely "sudo pigpiod" - is running. To verify that the
 # library is properly functioning, enter "pigs t" into the terminal; if a large number is returned everything SHOULD BE fine.
 
@@ -8,36 +8,23 @@ import sys
 sys.path.append('/home/pi/Desktop/PID')
 import PID_Test1 as PID
 
+# Code from open_motor repo
 baudRate = 115200
 port = "/dev/ttyACM1"
-
-import sys
-sys.path.append("../src/open_motor/")
-# This line points the python path to the open_motor module.
-# This will need to be changed based on the location of your code.
-
+sys.path.append("../src/open_motor/") # This line points the python path to the open_motor module.
 from open_motor_serial import open_motor
 import time
 
-# comms = open_motor()
-# comms.init_serial_port(port,baudRate,0.5)
-
 # importing pygame module
 import pygame 
-
-# importing sys module
-import sys
-
 # initialising pygame
 pygame.init()
-
 # creating display
 display = pygame.display.set_mode((300, 300)) 
 
 # import the GPIO module for the servos
 import RPi.GPIO as GPIO
 from time import sleep
-
 # import the pigpio library for the servos
 import pigpio
 from os import system # Crucial do not remove. Necessary for loading in the sudo pigpiod --- pigpio library launched as a demon, hence why we use "sudo pigpiod".
@@ -54,23 +41,23 @@ pwm = pigpio.pi()
 pwm.set_mode(servo, pigpio.OUTPUT)
 pwm.set_PWM_frequency(servo, 50)
 
+# For PID control use 
 global i
 i = 0
 
 def main():
-
-    # specify self to be motor.drive
+    # specify self to be motor.drive --> object of the class PID 
     robot_drive = PID.drive()
     speed = (0, 0)
     
+    # Control variable
     run = True
     
     while run:
-    
         DesPWMFB = 400 # Desired rpm value forward backward --- not corrected to GoBilda motors
         DesPWMLR = 250 # Desired rpm value left right
         
-        # Cycles through all the events currently occuring
+        # Pygamme module to handle keyboard inputs
         for event in pygame.event.get():
             pressed_keys = pygame.key.get_pressed()
             # Condition becomes true when keyboard is pressed   
@@ -121,7 +108,8 @@ def main():
 
             if event.type == pygame.KEYUP: # Sets PWM equal to zero when the key is released
                 speed = (0,0)
-                            
+                
+        # This will execute the PID controller for motor tuning                  
         if run == True:    
             print(speed)
             robot_drive.set_velocity(speed[0], speed[1])
@@ -131,7 +119,7 @@ def main():
             global i
             i += 1
             print(i)
-            if i > 5: # Time before pid resets - tinker with values; have tried 40, 25, 20, 10. 40 too long, same with 25. Depends on how long we want the pid to "                                                      decelerate".
+            if i > 5: # Time before pid resets - tinker with values; have tried 40, 25, 20, 10. 40 too long, same with 25.                                                      decelerate".
                 robot_drive.clear_pid() # Sets pid values equal to zero
                 i = 0
         else:
